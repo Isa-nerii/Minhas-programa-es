@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo da Velha</title>
+<style>
+    body{
+        background-color: black;
+        color: white;
+    }
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+    grid-template-rows: repeat(3, 200px);
+    gap: 2px;
+  }
+
+  .cell {
+    border: 1px solid rgb(168, 52, 147);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+</div>
+
+<script>
+  const board = document.getElementById('board');
+  const cells = document.querySelectorAll('.cell');
+  let currentPlayer = 'X';
+  let moves = 0;
+  let gameOver = false;
+
+  cells.forEach(cell => {
+    cell.addEventListener('click', handleCellClick);
+  });
+
+  function handleCellClick() {
+    if (gameOver) return;
+
+    if (!this.textContent) {
+      this.textContent = currentPlayer;
+      moves++;
+
+      if (checkWinner()) {
+        gameOver = true;
+        alert(`Player ${currentPlayer} venceu!`);
+        return;
+      }
+
+      if (moves === 9) {
+        gameOver = true;
+        alert("Empate!");
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    }
+  }
+
+  function checkWinner() {
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    return winningCombinations.some(combination => {
+      const [a, b, c] = combination;
+      return (
+        cells[a].textContent &&
+        cells[a].textContent === cells[b].textContent &&
+        cells[a].textContent === cells[c].textContent
+      );
+    });
+  }
+</script>
+</body>
+</html>

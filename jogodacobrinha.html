@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo da Cobrinha</title>
+<style>
+    canvas {
+        border: 1px solid black;
+        background-color: #ddd;
+    }
+</style>
+</head>
+<body>
+<canvas id="snakeCanvas" width="400" height="400"></canvas>
+<div>
+    <p>Score: <span id="score">0</span></p>
+    <p>Tempo: <span id="tempo">0</span></p>
+    <h3>Placar das Maiores Pontuações</h3>
+    <ol id="highScores">
+    </ol>
+</div>
+<script>
+    const canvas = document.getElementById("snakeCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+    
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 15, y: 15};
+    let poison = {x: 5, y: 5};
+    let dx = 0;
+    let dy = 0;
+    let score = 0;
+    let startTime = Date.now();
+    let elapsedTime = 0;
+
+    function drawSnake() {
+        ctx.fillStyle = "green";
+        snake.forEach(segment => {
+            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        });
+    }
+
+    function drawFood() {
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+    }
+
+    function drawPoison() {
+        ctx.fillStyle = "gray";
+        ctx.fillRect(poison.x * gridSize, poison.y * gridSize, gridSize, gridSize);
+    }
+
+    function moveSnake() {
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            score += 10;
+            generateFood();
+        } else {
+            snake.pop();
+        }
+
+        if (head.x === poison.x && head.y === poison.y) {
+            score -= 20;
+            generatePoison();
+        }
+    }
+
+    function generateFood() {
+        food.x = Math.floor(Math.random() * tileCount);
+        food.y = Math.floor(Math.random() * tileCount);
+    }
+
+    function generatePoison() {
+        poison.x = Math.floor(Math.random() * tileCount);
+        poison.y = Math.floor(Math.random() * tileCount);
+    }
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawScore() {
+        document.getElementById("score").textContent = score;
+    }
+
+    function drawTime() {
+        elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById("tempo").textContent = elapsedTime + "s";
+    }
+
+    function main() {
+        clearCanvas();
+        drawSnake();
+        drawFood();
+        drawPoison();
+        moveSnake();
+        drawScore();
+        drawTime();
+
+        if (checkCollision()) {
+            handleGameOver();
+        }
+    }
+
+    function checkCollision() {
+        const head = snake[0];
+        return (
+            head.x < 0 ||
+            head.x >= tileCount ||
+            head.y < 0 ||
+            head.y >= tileCount ||
+            snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)
+        );
+    }
+
+    function handleGameOver() {
+        alert("Game Over! Score: " + score);
+        document.location.reload();
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "ArrowUp" && dy === 0) {
+            dx = 0;
+            dy = -1;
+        } else if (event.key === "ArrowDown" && dy === 0) {
+            dx = 0;
+            dy = 1;
+        } else if (event.key === "ArrowLeft" && dx === 0) {
+            dx = -1;
+            dy = 0;
+        } else if (event.key === "ArrowRight" && dx === 0) {
+            dx = 1;
+            dy = 0;
+        }
+    });
+
+    generateFood();
+    generatePoison();
+    setInterval(main, 150); // Intervalo de atualização do jogo
+</script>
+</body>
+</html>
+
+
